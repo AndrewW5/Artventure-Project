@@ -50,6 +50,8 @@ ArrayList<PVector> getInterpolatedPoints(PVector pt1, PVector pt2) {
 void setup() {
   size (1080, 720);
   background(255);
+  stroke(blackColor);
+  fill(blackColor);
   font = createFont("FuturaStd-Medium-24.vlw",16,true);
   leap = new LeapMotionP5(this);
   
@@ -146,9 +148,10 @@ void mousePressed() {
     println("Blue Colour selected");
   }
   if(mouseX > 555 && mouseX < 600 && mouseY > 20 && mouseY < 71){
-    fill ( random(0, 255), random(255), random(255) ); // Button: Rainbow Colour Box
-    stroke ( random(0, 255), random(255), random(255) );
-    println("fill colour randomized");
+    float[] colorValues = {random(0, 255), random(255), random(255)}; // Creates random fill and stroke
+    fill (colorValues[0], colorValues[1], colorValues[2]); // Button: Rainbow Colour Box
+    stroke (colorValues[0], colorValues[1], colorValues[2]);
+    println("Colour randomized");
   }
   // Reset Brush Size
   if (brushSize < 0) { 
@@ -171,11 +174,12 @@ void keyPressed() {
     brushSize --; // Brush Weight Decreased
     println("Brush Size is " + brushSize);
   } else if (key == '*') {
-    fill ( random(0, 255), random(255), random(255) ); // Rainbow Colour Box
-    stroke( random(0, 255), random(255), random(255) );
+    float[] colorValues = {random(0, 255), random(255), random(255)}; // Creates random fill and stroke
+    fill (colorValues[0], colorValues[1], colorValues[2]); // Button: Rainbow Colour Box
+    stroke (colorValues[0], colorValues[1], colorValues[2]);
     println("Colour randomized");
   } else if (key == 'e') {
-    fill(whiteColor);
+    fill(whiteColor); // Eraser
     stroke(whiteColor);
   }
   // Reset Brush Size
