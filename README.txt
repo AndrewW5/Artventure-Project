@@ -1,7 +1,7 @@
 IMD3901 Design Studio 3
 Team: JRAA Studios 
 Members: Andrew Wardell, Alex Tarapacky, Rebecca Riesberry, Jessica Fox
-Date: February 7, 2014
+Date: February 26, 2014
 
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -11,6 +11,6 @@ Changes:
 
 * Contains file called artModeColour which is the new file with a colour picker and testing screen tap gesture
 
-* New art assets from last week which contain storyboards and concept art for game levels
+* More art assets which contain storyboards and concept art for game levels
 
 
