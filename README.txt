@@ -12,8 +12,8 @@ Changes:
 * Home Page, Tutorial and Credits pages are being developed. Design is complete.
 
 * Art mode functional:
-	Fixed drawing styles and buffer, added cursor to Finger Position
-	Fixed issues with drawing in Open Gl and colour picker
+	Fixed drawing styles and buffer, added cursor to Leap finger position
+	Fixed issues with drawing in Open GL and colour picker
 
 * Adventure Mode has started.
 
