@@ -1,21 +1,17 @@
 IMD3901 Design Studio 3
 Team: JRAA Studios 
 Members: Andrew Wardell, Alex Tarapacky, Rebecca Riesberry, Jessica Fox
-Date: March 13, 2014
+Date: March 15, 2014
 
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 Changes:
 
-* Art assets which contain storyboards and concept art for game levels completed
+* Art mode functional for prototype next Friday.
 
-* Home Page, Tutorial and Credits pages are being developed. Design is complete.
+* Art assets which contain storyboards and concept art for game levels completed. Levels 2 and 3 are being designed.
 
-* Art mode functional:
-	Fixed drawing styles and buffer, added cursor to Leap finger position
-	Fixed issues with drawing in Open GL and colour picker
-
-* Adventure Mode has started.
+* Adventure Mode has started. Continuing development of Level 1. Working on code to dynamically introduce assets into the level. Score and animations working on. Audio is implemented. Custom fonts are implemented.
 
 
 
