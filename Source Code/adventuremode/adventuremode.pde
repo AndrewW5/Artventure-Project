@@ -44,8 +44,8 @@ PImage rainbowfish2;
 PImage rainbowfish3;
 PImage inkbees;
 
-float bgSpeed = 200; // Background speed: Ex. 1000 is very slow and 1 is very fast
-float playerMoveSpeed = 80; // Player speed according to Leap Position X: Ex. 100 is smooth, slow and 1 is fastest
+float bgSpeed = 130; // Background speed: Ex. 1000 is very slow and 1 is very fast
+float playerMoveSpeed = 50; // Player speed according to Leap Position X: Ex. 100 is smooth, slow and 1 is fastest
 
 float xpos = 0;
 float ypos = 0;
@@ -164,11 +164,6 @@ void draw() {
     timer = (millis()/1000); // In seconds
   }
   
-  // Circle Bees Text Event, encourage thy player!
-  if (!beesLoaded && timer < circleBeesTimer + 7) {
-    textSize(35);
-    text("Congratulations! You beat the level!", width/3, height/8);
-  }
   
 
   // ******************** ASSETS INSTANTIATED ********************
@@ -269,6 +264,12 @@ void draw() {
   image(cursor, lastFingerPos.x, lastFingerPos.y, 50, 50);
   
   
+  // Circle Bees Text Event, encourage thy player!
+  if (!beesLoaded && timer < circleBeesTimer + 7) {
+    textSize(35);
+    text("Congratulations! You beat the level!", width/3, height/2);
+  }  
+  
   // ******************** TEXT EVENTS ********************
   // Welcome Text Event
   if (timer < 20) {
@@ -347,6 +348,8 @@ void draw() {
     textSize(35);
     text("Rainbow Fish Get! +30 Points", width/3, height/2);
   }
+  
+  
   
   
   // ******************** TESTING ********************
