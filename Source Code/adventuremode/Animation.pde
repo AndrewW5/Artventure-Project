@@ -9,7 +9,7 @@ class Animation {
 
     for (int i = 0; i < imageCount; i++) {
       int digits = 1;
-      String filename = imagePrefix + nf(i, digits) + ".png"; // playerMove0.png, etc.
+      String filename = imagePrefix + nf(i, digits) + ".png"; // Animation naming convention
       images[i] = loadImage(filename);
     }
   }
