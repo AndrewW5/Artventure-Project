@@ -1,7 +1,7 @@
 // Adventure Mode
 // Coded by Andrew Wardell
-// Revision V1.2 Alpha
-// Date: March 24, 2014
+// Version: Alpha
+// Date: March 26, 2014
 
 import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.Hand;
@@ -80,12 +80,18 @@ Boolean beesLoaded = true;
 float bgSpeed = 130; // Background speed: Ex. 1000 is very slow and 1 is very fast, 130 seems good
 float playerMoveSpeed = 50; // Player speed according to Leap Position X: Ex. 100 is smooth, slow and 1 is fastest, 50 seems good
 
+float archiePosY = 80;
+float archiePosX = 80;
+float rainbowCatPosY = 100;
+
 float xpos = 0;
 float ypos = 0;
 float y = 0; 
 float x = 0;
 int scoreCount = 0;
+int savedTime = 0;
 int timer = 0;
+
 int swipeCrateTimer = 0;
 int swipeRockTimer = 0;
 int swipeCrackedRockTimer = 0;
@@ -104,7 +110,8 @@ Boolean gestureTest = false;
 Boolean counting = true;
 
 ResourceLoader resourceLoader;
-Animation playerAnim;
+Animation archieFlying;
+Animation playerAnimWalk;
 Animation playerAnimIdle;
 Animation playerAnimAttack;
 
@@ -169,9 +176,10 @@ void setup() {
   rainbowfish3 = resourceLoader.getImage("Tree3_RainbowFish.png");
   inkbees = resourceLoader.getImage("inkbees_2.png");
   
-  playerAnim = new Animation("playerAnimation/CATWalking", 7);
-  playerAnimIdle = new Animation("playerAnimation/CATIdle", 7);
-  playerAnimAttack = new Animation("playerAnimation/CATattacking", 7);
+  archieFlying = new Animation("Animation/Archieframe", 7);
+  playerAnimWalk = new Animation("Animation/CATWalking", 7);
+  playerAnimIdle = new Animation("Animation/CATIdle", 7);
+  playerAnimAttack = new Animation("Animation/CATattacking", 7);
   
   buffer = createGraphics(2000, 2000);
   ypos = height * 0.35;
@@ -181,19 +189,18 @@ void setup() {
 void draw() {
   
   background(255);
-  
-  int second = 1000;
-  
+  fill(255);
+ 
   if (counting) {
-    timer = (millis()/second); // In seconds
+    timer = (millis()/1000); // In seconds
   }
-  
   
   
   // ******************** LEVEL 1 ASSETS INSTANTIATED ********************
   // Each image is loaded into the scene by order of instantiation
   // Ex. Background image is loaded first, so all other assets after will be in front
   // Ex. Cursor image is loaded last, so all other assets before will be behind
+  
   
   // Background Instantiated 
   image( bg.get(int(x), 0 , bg.width-int(x), bg.height), 0, 0 );
@@ -262,16 +269,43 @@ void draw() {
     
   
   
-  // ******************** PLAYER ANIMATION ********************
+  // ******************** LEVEL 1 ANIMATION ********************
   
   float dx = lastFingerPos.x - xpos; // Distance from cursor, replace mouseX with the leap position x
-  if (dx > 30 || dx < -30) {
-    playerAnim.display(xpos-playerAnim.getWidth()/2, ypos + 100);
+  int passedTime = millis() - savedTime;
+  
+  if (timer < 30) {
+    archieFlying.display(xpos-archieFlying.getWidth()/2, ypos + 80);
+  }
+  if (timer >= 30) {
+    archieFlying.display(archieFlying.getWidth()/2 + archiePosX + 300, archiePosY + 200);
+  }
+  if (dx > 40 || dx < -40) {
+    if (passedTime > 4000) {
+      float randx = 100;
+      float randy = 100;
+      archiePosX = random(-randx, randx);
+      archiePosY = random(-randy, randy);
+      savedTime = millis();
+    }
+    playerAnimWalk.display(xpos-playerAnimWalk.getWidth()/2, ypos + rainbowCatPosY);
   } else {
-    playerAnimIdle.display(xpos-playerAnimIdle.getWidth()/2, ypos + 100);
+    playerAnimWalk.display(xpos-playerAnimWalk.getWidth()/2, ypos + rainbowCatPosY);
   }
   xpos = xpos + dx/playerMoveSpeed; // Moves player to cursor position
+  
+  
 
+  // ******************** LEVEL 1 ADVANCE ********************
+  
+  int smallTextSize = 30;
+  int normalTextSize = 35;
+  int largeTextSize = 48;
+  int middleScreenPosX = 3;
+  int middleScreenPosY = 2;
+  int topScreenPos = 8;
+  int textDuration = 4;
+  
   // User must strike the crate to continue the level
   if (crateLoaded) {
     if (xpos < 510) {
@@ -282,20 +316,35 @@ void draw() {
   } else {
     x += xpos / bgSpeed; 
   }
+  
   // User must strike the log to continue the level
   if (logLoaded) {
-    if (x <= 4000) {
+    if (x <= 4030) {
       xpos = xpos + dx/playerMoveSpeed;
     } else {
-      fill(255);
-      textSize(30);
-      text("Strike the log to continue!", width/2.5, height/2);
-      x = 4000;
+      x = 4030;
       xpos = 510;
+      textSize(smallTextSize);
+      text("Strike the log to continue!", width/2.5, height/2);
     }
   } else {
     x += xpos / bgSpeed; 
   }
+  
+  // User must catch the bees to continue the level
+  if (beesLoaded) {
+    if (x <= 5710) {
+      xpos = xpos + dx/playerMoveSpeed;
+    } else {
+      x = 5710;
+      xpos = 310;
+      textSize(smallTextSize);
+      text("Circle the bees to catch them!", width/2.5, height/2);
+    }
+  } else {
+    x += xpos / bgSpeed; 
+  }
+  
   
   
   // ******************** LEVEL 1 ASSETS INSTANTIATED ********************
@@ -333,14 +382,7 @@ void draw() {
   
   
   // ******************** LEVEL 1 TEXT EVENTS ********************
-  
-  int smallTextSize = 30;
-  int normalTextSize = 35;
-  int largeTextSize = 48;
-  int middleScreenPosX = 3;
-  int middleScreenPosY = 2;
-  int topScreenPos = 8;
-  int textDuration = 4;
+
   
   // When they circle the bees
   if (!beesLoaded && timer < circleBeesTimer + textDuration) {
@@ -349,25 +391,16 @@ void draw() {
   }
   // Welcome Text Event for a duration of time
   if (timer < 15) {
-    fill(255);
     textSize(largeTextSize);
     text("YOU ARE RAINBOW CAT", width/middleScreenPosX, height/topScreenPos);
   }
   // Help Text Event 1 - Strike objects text after crate
   if (x > 300 && x < 600) {
-    fill(255);
     textSize(smallTextSize);
     text("Strike things to gain points!\nYou might even find Rainbow Fish!", width/middleScreenPosX, height/topScreenPos);
   }
-  // Help Text Event 2 - Circling the bees
-  if (x > 5200 && x < 5500) {
-    fill(255);
-    textSize(normalTextSize);
-    text("Circle the bees to catch them!", width/middleScreenPosX, height/topScreenPos);
-  }
   // Telling the user to strike the crate first
   if (crateLoaded && timer > 7 && timer < 20) {
-    fill(255);
     textSize(smallTextSize);
     text("Strike the Crate!", width/middleScreenPosX, height/middleScreenPosY);
   }
@@ -390,7 +423,7 @@ void draw() {
   // Swipe Cracked Rock Text Event, encourage thy player!
   if (!crackedRockLoaded && timer < swipeCrackedRockTimer + textDuration) {
     textSize(normalTextSize);
-    text("Wasn't even hard! +50 Points", width/middleScreenPosX, height/middleScreenPosY);
+    text("Wasn't even hard! +50 Points", width/middleScreenPosX, height/topScreenPos);
   }  
   // Swipe Tree Trunk Event, encourage thy player!
   if (!treeTrunkLoaded && timer < swipeTreeTrunkTimer + textDuration - 1) {
@@ -404,8 +437,8 @@ void draw() {
   }  
   // Swipe Small Rock Text Event, encourage thy player!
   if (!smallRockLoaded && timer < swipeSmallRockTimer + textDuration - 1) {
-    //textSize(normalTextSize);
-    //text("Easy one! +50 Points", width/middleScreenPosX, height/middleScreenPosY);
+    textSize(normalTextSize);
+    text("Easy one! +50 Points", width/middleScreenPosX, height/topScreenPos);
   }  
   // Swipe Log Text Event, encourage thy player!
   if (!logLoaded && timer < swipeLogTimer + textDuration - 1) {
@@ -430,7 +463,7 @@ void draw() {
   
   
   
-  // ******************** LEVEL 1 INTERACTION ********************
+  // ******************** LEVEL 1 GESTURE INTERACTION ********************
   
   // Swiping the crate
   if (swipeCrate) {
@@ -438,7 +471,7 @@ void draw() {
     crateLoaded = false;
     swipeCrate = false;
     timer = swipeCrateTimer;
-    swipeCrateTimer = (millis()/second) - swipeCrateTimer;
+    swipeCrateTimer = (millis()/1000) - swipeCrateTimer;
   }  
   // Swiping the rock
   if (swipeRock) {
@@ -447,7 +480,7 @@ void draw() {
     rockLoaded = false;
     swipeRock = false;
     timer = swipeRockTimer;
-    swipeRockTimer = (millis()/second) - swipeRockTimer;
+    swipeRockTimer = (millis()/1000) - swipeRockTimer;
   }
   // Swiping the cracked rock
   if (swipeCrackedRock) {
@@ -456,7 +489,7 @@ void draw() {
     crackedRockLoaded = false;
     swipeCrackedRock = false;
     timer = swipeCrackedRockTimer;
-    swipeCrackedRockTimer = (millis()/second) - swipeCrackedRockTimer;
+    swipeCrackedRockTimer = (millis()/1000) - swipeCrackedRockTimer;
   }  
   // Swiping the tree trunk
   if (swipeTreeTrunk) {
@@ -464,7 +497,7 @@ void draw() {
     treeTrunkLoaded = false;
     swipeTreeTrunk = false;
     timer = swipeTreeTrunkTimer;
-    swipeTreeTrunkTimer = (millis()/second) - swipeTreeTrunkTimer;
+    swipeTreeTrunkTimer = (millis()/1000) - swipeTreeTrunkTimer;
   }  
   // Swiping the weird rock
   if (swipeWeirdRock) {
@@ -473,7 +506,7 @@ void draw() {
     weirdRockLoaded = false;
     swipeWeirdRock = false;
     timer = swipeWeirdRockTimer;
-    swipeWeirdRockTimer = (millis()/second) - swipeWeirdRockTimer;
+    swipeWeirdRockTimer = (millis()/1000) - swipeWeirdRockTimer;
   }  
   // Swiping the small rock
   if (swipeSmallRock) {
@@ -482,7 +515,7 @@ void draw() {
     smallRockLoaded = false;
     swipeSmallRock = false;
     timer = swipeSmallRockTimer;
-    swipeSmallRockTimer = (millis()/second) - swipeSmallRockTimer;
+    swipeSmallRockTimer = (millis()/1000) - swipeSmallRockTimer;
   }
   // Swiping the log
   if (swipeLog) {
@@ -490,7 +523,7 @@ void draw() {
     logLoaded = false;
     swipeLog = false;
     timer = swipeLogTimer;
-    swipeLogTimer = (millis()/second) - swipeLogTimer;
+    swipeLogTimer = (millis()/1000) - swipeLogTimer;
   }
   
   // Swiping the trees
@@ -499,7 +532,7 @@ void draw() {
     rainbowFishLoaded = true;
     swipeTrees = false;
     timer = swipeTreesTimer;
-    swipeTreesTimer = (millis()/second) - swipeTreesTimer;
+    swipeTreesTimer = (millis()/1000) - swipeTreesTimer;
   }
   // Swiping the trees 2
   if (swipeTrees2) {
@@ -507,7 +540,7 @@ void draw() {
     rainbowFishLoaded2 = true;
     swipeTrees2 = false;
     timer = swipeTreesTimer2;
-    swipeTreesTimer2 = (millis()/second) - swipeTreesTimer2;
+    swipeTreesTimer2 = (millis()/1000) - swipeTreesTimer2;
   }
   // Swiping the trees 3
   if (swipeTrees3) {
@@ -515,7 +548,7 @@ void draw() {
     rainbowFishLoaded3 = true;
     swipeTrees3 = false;
     timer = swipeTreesTimer3;
-    swipeTreesTimer3 = (millis()/second) - swipeTreesTimer3;
+    swipeTreesTimer3 = (millis()/1000) - swipeTreesTimer3;
   }
   
   // Circle the bees
@@ -524,7 +557,7 @@ void draw() {
     beesLoaded = false;
     circleBees = false;
     timer = circleBeesTimer;
-    circleBeesTimer = (millis()/second) - circleBeesTimer;
+    circleBeesTimer = (millis()/1000) - circleBeesTimer;
   }
   
   // Level End Event
@@ -536,13 +569,9 @@ void draw() {
     playerMoveSpeed = 10000; // temp
   }
   
-  // Score Counter
-  fill(255);
-  textSize(32);
-  text("Score: " + scoreCount, 45, height - 45);
-  
     
   // ******************** TESTING ********************
+  
   // Get Finger Positions
     //println(lastFingerPos.x + " " + lastFingerPos.y); // X and Y
     //println("Y: " + lastFingerPos.y); // Just Y
@@ -569,6 +598,10 @@ void draw() {
   if(lastFingerPos.x > 120 && lastFingerPos.x < 175 && lastFingerPos.y > 80 && lastFingerPos.y < 130) {
     println("Eraser Chosen");
   }
+  
+   // Score Counter
+  textSize(32);
+  text("Score: " + scoreCount, 45, height - 45);
   
 }
 
@@ -598,10 +631,6 @@ public void circleGestureRecognized(CircleGesture gesture, String clockwiseness)
       lastGesture += "Turns: " + gesture.progress() + "\n";
       lastGesture += "Center: " + leap.vectorToPVector(gesture.center()) + "\n";
       lastGesture += "Duration: " + gesture.durationSeconds() + "s" + "\n";
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
     }
    circleBees = true;
   }
@@ -633,101 +662,43 @@ public void swipeGestureRecognized(SwipeGesture gesture) {
       lastGesture += "Direction: " + gesture.direction() + "\n";
       lastGesture += "Speed: " + gesture.speed() + "\n";
       lastGesture += "Duration: " + gesture.durationSeconds() + "s" + "\n";
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
     }
   swipeCrate = true;
  }
  // Rock Swipe
  if (x > 600 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 300 && lastFingerPos.y < 550 && rockLoaded) {
-    if (gesture.state() == State.STATE_STOP) {
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
-    }
   swipeRock = true;
  }
  // Cracked Rock Swipe
  if (x > 2600 - 1080 && x < 2600 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 480 && lastFingerPos.y < 630 && crackedRockLoaded) {
-    if (gesture.state() == State.STATE_STOP) {
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
-    }
   swipeCrackedRock = true;
  }
  // Tree Trunk Swipe
  if (x > 3680 - 1080 && x < 3680 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 540 && lastFingerPos.y < 720 && treeTrunkLoaded) {
-    if (gesture.state() == State.STATE_STOP) {
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
-    }
   swipeTreeTrunk = true;
  }
  // Weird Rock Swipe
  if (x > 4000 - 1080 && x < 4000 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 360 && lastFingerPos.y < 540 && weirdRockLoaded) {
-    if (gesture.state() == State.STATE_STOP) {
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
-    }
   swipeWeirdRock = true;
  }
  // Small Rock Swipe
  if (x > 4580 - 1080 && x < 4580 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 500 && lastFingerPos.y < 720 && smallRockLoaded) {
-    if (gesture.state() == State.STATE_STOP) {
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
-    }
   swipeSmallRock = true;
  }
  // Log Swipe
  if (x > 5000 - 1080 && x < 5000 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 480 && lastFingerPos.y < 630 && logLoaded) {
-    if (gesture.state() == State.STATE_STOP) {
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
-    }
   swipeLog = true;
  }
  // Trees 1 Swipe
  if (x > 1475 - 1080 && x < 1475 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 0 && lastFingerPos.y < 280 && !rainbowFishLoaded) {
-    if (gesture.state() == State.STATE_STOP) {
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
-    }
   swipeTrees = true;
  }
  // Trees 2 Swipe
  if (x > 3370 - 1080 && x < 3370 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 0 && lastFingerPos.y < 280 && !rainbowFishLoaded2) {
-    if (gesture.state() == State.STATE_STOP) {
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
-    }
   swipeTrees2 = true;
  }
  // Trees 3 Swipe
  if (x > 5610 - 1080 && x < 5610 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 0 && lastFingerPos.y < 280 && !rainbowFishLoaded3) {
-    if (gesture.state() == State.STATE_STOP) {
-    } 
-    else if (gesture.state() == State.STATE_START) {
-    } 
-    else if (gesture.state() == State.STATE_UPDATE) {
-    }
   swipeTrees3 = true;
  }
  
