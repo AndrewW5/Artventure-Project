@@ -1,7 +1,7 @@
 // Adventure Mode - Level 1
 // Coded by Andrew Wardell
-// Date: March 30, 2014
-
+// Date: April 5, 2014
+import ddf.minim.*;
 import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Gesture.State;
@@ -16,13 +16,25 @@ LeapMotionP5 leap;
 String lastGesture =
 "enabling gestures: \n'c' for CircleGesture\n's' for SwipeGesture\n'k' for KeyTapGesture\n't' for ScreenTapGesture";
 
-import ddf.minim.*;
 AudioPlayer player;
-Minim minim;//audio context
+Minim minim;
+
+ResourceLoader resourceLoader;
+Animation archieFlying;
+Animation playerAnimWalk;
+Animation playerAnimIdle;
+Animation playerAnimAttack;
+Animation inkbeeGreen;
+Animation inkbeeGreenBubble;
+Animation inkbeePurple;
+Animation inkbeePurpleBubble;
+Animation inkbeeRed;
+Animation inkbeeRedBubble;
 
 PVector lastFingerPos = new PVector(width/2, 1000);
-
-PGraphics buffer;
+Boolean gestureTest = false;
+Boolean counting = true;
+float bgWidth = 7001 - 1080;
 
 PFont font;
 
@@ -79,10 +91,8 @@ Boolean purpleBeeLoaded = true;
 Boolean circleBeeRed = false;
 Boolean redBeeLoaded = true;
 
-
-float bgSpeed = 130; // Background speed: Ex. 1000 is very slow and 1 is very fast, 130 seems good
+float bgSpeed = 120; // Background speed: Ex. 1000 is very slow and 1 is very fast, 120 seems good
 float playerMoveSpeed = 50; // Player speed according to Leap Position X: Ex. 100 is smooth, slow and 1 is fastest, 50 seems good
-
 float archiePosY = 80;
 float archiePosX = 80;
 float rainbowCatPosY = 100;
@@ -104,21 +114,6 @@ int swipeTreesTimer = 0;
 int swipeTreesTimer2 = 0;
 int swipeTreesTimer3 = 0;
 int circleBeesTimer = 0;
-
-float bgWidth = 7001 - 1080;
-
-Boolean gestureTest = false;
-Boolean counting = true;
-
-
-ResourceLoader resourceLoader;
-Animation archieFlying;
-Animation playerAnimWalk;
-Animation playerAnimIdle;
-Animation playerAnimAttack;
-Animation inkbeeGreen;
-Animation inkbeePurple;
-Animation inkbeeRed;
 
 ArrayList<PVector> getInterpolatedPoints(PVector pt1, PVector pt2, float spacing) {
   PVector drawLine = PVector.sub(pt2,pt1);
@@ -153,7 +148,7 @@ void setup() {
   
   // Playing audio files
   minim = new Minim(this);
-  player = minim.loadFile("Level1.mp3");
+  player = minim.loadFile("Montauk Point.mp3");
   player.play();
   
   // Loading Resource Assets
@@ -180,16 +175,17 @@ void setup() {
   log = resourceLoader.getImage("Log_2.png");
   treetrunk = resourceLoader.getImage("TreeTrunk_2.png");
   
-  
   archieFlying = new Animation("Animation/Archieframe", 7);
   playerAnimWalk = new Animation("Animation/CATWalking", 7);
   playerAnimIdle = new Animation("Animation/CATIdle", 7);
   playerAnimAttack = new Animation("Animation/CATattacking", 7);
   inkbeeGreen = new Animation("Animation/InkbeeGreen", 11);
+  inkbeeGreenBubble = new Animation("Animation/InkbeeGreenBubble", 11);
   inkbeePurple = new Animation("Animation/InkbeePurple", 11);
+  inkbeePurpleBubble = new Animation("Animation/InkbeePurpleBubble", 11);
   inkbeeRed = new Animation("Animation/InkbeeRed", 11);
+  inkbeeRedBubble = new Animation("Animation/InkbeeRedBubble", 11);
   
-  buffer = createGraphics(2000, 2000);
   ypos = height * 0.35;
   
 }
@@ -202,7 +198,6 @@ void draw() {
   if (counting) {
     timer = (millis()/1000); // In seconds
   }
-  
   
   
   // ******************** LEVEL 1 ASSETS INSTANTIATED ********************
@@ -266,30 +261,29 @@ void draw() {
     image( treetrunk.get(int(x), 0, treetrunk.width-int(x), treetrunk.height), 0, 0);
   }
   // Ink Bee Green Instantiated
-  if (x > 6800 - 1500 && x < 6800 && greenBeeLoaded) {
-    inkbeeGreen.display(400, 80);
+  if (x > 7000 - 1500 && x < 7000 && greenBeeLoaded) {
+    inkbeeGreen.display(400, 80); // Displays in the same position as the Green Ink Bee
   }
   // Ink Bee Purple Instantiated
-  if (x > 6800 - 1500 && x < 6800 && purpleBeeLoaded) {
-    inkbeePurple.display(600, 250);
+  if (x > 7000 - 1500 && x < 7000 && purpleBeeLoaded) {
+    inkbeePurple.display(600, 250); // Displays in same position as the Purple Ink Bee
   }
   // Ink Bee Red Instantiated
-  if (x > 6800 - 1500 && x < 6800 && redBeeLoaded) {
-    inkbeeRed.display(800, 120);
+  if (x > 7000 - 1500 && x < 7000 && redBeeLoaded) {
+    inkbeeRed.display(800, 120); // Displays in same position as the Red Ink Bee
   }
     
     
   // ******************** LEVEL 1 ANIMATION ********************
   
-  //float dx = mouseX - xpos; // Testing with the mouse
   float dx = lastFingerPos.x - xpos; // Distance from cursor, Leap Motion control
-  int passedTime = millis() - savedTime;
+  int passedTime = millis() - savedTime; // Save the time that has passed in a variable
   
   if (timer < 30) {
-    archieFlying.display(xpos-archieFlying.getWidth()/2, ypos + 80);
+    archieFlying.display(xpos-archieFlying.getWidth()/2, ypos + 80); // Display archie above xposition of character
   }
   if (timer >= 30) {
-    archieFlying.display(archieFlying.getWidth()/2 + archiePosX + 300, archiePosY + 200);
+    archieFlying.display(archieFlying.getWidth()/2 + archiePosX + 300, archiePosY + 200); // Display archie flying
   }
   if (dx > 40 || dx < -40) {
     if (passedTime > 4000) {
@@ -301,7 +295,7 @@ void draw() {
     }
     playerAnimWalk.display(xpos-playerAnimWalk.getWidth()/2, ypos + rainbowCatPosY);
   } else {
-    playerAnimWalk.display(xpos-playerAnimWalk.getWidth()/2, ypos + rainbowCatPosY);
+    playerAnimIdle.display(xpos-playerAnimIdle.getWidth()/2, ypos + rainbowCatPosY);
   }
   xpos = xpos + dx/playerMoveSpeed; // Moves player to cursor position
   
@@ -342,7 +336,7 @@ void draw() {
     x += xpos / bgSpeed; 
   }
   // User must catch the bees to continue the level
-  if (greenBeeLoaded && purpleBeeLoaded && redBeeLoaded) {
+  if (greenBeeLoaded || purpleBeeLoaded || redBeeLoaded) {
     if (x <= 5710) {
       xpos = xpos + dx/playerMoveSpeed;
     } else {
@@ -352,7 +346,7 @@ void draw() {
       text("Circle the bees to catch them!", width/2.2, height/1.7);
     }
   } else {
-    x += xpos / bgSpeed; 
+    x += xpos / bgSpeed;
   }
   
   
@@ -557,18 +551,21 @@ void draw() {
   // Circling the Green Bee
   if (circleBeeGreen) {
     scoreCount += 10;
+    inkbeeGreenBubble.display(400, 80);
     greenBeeLoaded = false;
     circleBeeGreen = false;
   }
   // Circling the Purple Bee
   if (circleBeePurple) {
     scoreCount += 10;
+    inkbeePurpleBubble.display(600, 250);
     purpleBeeLoaded = false;
     circleBeePurple = false;
   }
   // Circling the Red Bee
   if (circleBeeRed) {
     scoreCount += 10;
+    inkbeeRedBubble.display(800, 120);
     redBeeLoaded = false;
     circleBeeRed = false;
   }
@@ -581,6 +578,7 @@ void draw() {
     playerMoveSpeed = 10000; // temp
     timer = circleBeesTimer;
     circleBeesTimer = (millis()/1000) - circleBeesTimer;
+    player.close();
   }
   // Score Counter
   textSize(32);
@@ -608,7 +606,7 @@ void draw() {
   }  
   // Still wondering about the implementation for these buttons
   if(lastFingerPos.x > 38 && lastFingerPos.x < 90 && lastFingerPos.y > 80 && lastFingerPos.y < 130) {
-      println("Drawing Tool Chosen");
+    println("Drawing Tool Chosen");
   }
   if(lastFingerPos.x > 120 && lastFingerPos.x < 175 && lastFingerPos.y > 80 && lastFingerPos.y < 130) {
     println("Eraser Chosen");
@@ -621,7 +619,7 @@ public void circleGestureRecognized(CircleGesture gesture, String clockwiseness)
   // ********** LEVEL 1 GESTURES **********
   
   // Netting Green Bee
-  if (x > 6700 - 1080 && x < 6700 && lastFingerPos.x > 350 && lastFingerPos.x < 450 && lastFingerPos.y > 30 && lastFingerPos.y < 130 && greenBeeLoaded) {
+  if (x > 6700 - 1080 && x < 6700 && lastFingerPos.x > 400 - 115 && lastFingerPos.x < 400 + 115 && lastFingerPos.y > 80 - 131 && lastFingerPos.y < 80 + 131 && greenBeeLoaded) {
     if (gesture.state() == State.STATE_STOP) {
       System.out.println("//////////////////////////////////////");
       System.out.println("Gesture type: " + gesture.type().toString());
@@ -645,11 +643,11 @@ public void circleGestureRecognized(CircleGesture gesture, String clockwiseness)
    circleBeeGreen = true;
   }
   // Netting Purple Bee
-  if (x > 6700 - 1080 && x < 6700 && lastFingerPos.x > 550 && lastFingerPos.x < 650 && lastFingerPos.y > 200 && lastFingerPos.y < 300 && purpleBeeLoaded) {
+  if (x > 6700 - 1080 && x < 6700 && lastFingerPos.x > 600 - 115 && lastFingerPos.x < 600 + 115 && lastFingerPos.y > 250 - 131 && lastFingerPos.y < 250 + 131 && purpleBeeLoaded) {
    circleBeePurple = true;
   }
   // Netting Red Bee
-  if (x > 6700 - 1080 && x < 6700 && lastFingerPos.x > 750 && lastFingerPos.x < 850 && lastFingerPos.y > 70 && lastFingerPos.y < 170 && redBeeLoaded) {
+  if (x > 6700 - 1080 && x < 6700 && lastFingerPos.x > 800 - 115 && lastFingerPos.x < 800 + 115 && lastFingerPos.y > 120 - 131 && lastFingerPos.y < 120 + 131 && redBeeLoaded) {
    circleBeeRed = true;
   }
   

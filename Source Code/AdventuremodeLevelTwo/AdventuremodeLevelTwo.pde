@@ -1,7 +1,8 @@
 // Adventure Mode - Level 2
 // Coded by Andrew Wardell
-// Date: March 30, 2014
+// Date: April 5, 2014
 
+import ddf.minim.*;
 import com.leapmotion.leap.Finger;
 import com.leapmotion.leap.Hand;
 import com.leapmotion.leap.Gesture.State;
@@ -16,13 +17,26 @@ LeapMotionP5 leap;
 String lastGesture =
 "enabling gestures: \n'c' for CircleGesture\n's' for SwipeGesture\n'k' for KeyTapGesture\n't' for ScreenTapGesture";
 
-import ddf.minim.*;
 AudioPlayer player;
-Minim minim;//audio context
+AudioPlayer player2;
+Minim minim;
+
+ResourceLoader resourceLoader;
+Animation archieFlying;
+Animation playerAnimWalk;
+Animation playerAnimIdle;
+Animation playerAnimAttack;
+Animation inkbeeGreen;
+Animation inkbeePurple;
+Animation inkbeeRed;
+Animation inkbeeGreenBubble;
+Animation inkbeePurpleBubble;
+Animation inkbeeRedBubble;
 
 PVector lastFingerPos = new PVector(width/2, 1000);
-
-PGraphics buffer;
+Boolean gestureTest = false;
+Boolean counting = true;
+float bgWidth = 7001 - 1080;
 
 PFont font;
 
@@ -55,8 +69,10 @@ PImage roof;
 PImage roofoutline;
 PImage waterfountain;
 PImage waterfountain2;
-PImage window;
-PImage windowoutline;
+PImage windowright;
+PImage windowleft;
+PImage windowrightoutline;
+PImage windowleftoutline;
 
 Boolean swipeBridgeOutline = false;
 Boolean bridgeOutlineLoaded = true;
@@ -82,6 +98,21 @@ Boolean largeRock2Loaded = true;
 Boolean largeRock3Loaded = false;
 Boolean waterFountainLoaded = true;
 Boolean waterFountain2Loaded = false;
+Boolean doorLoaded = false;
+Boolean swipeDoorOutline = false;
+Boolean doorOutlineLoaded = true;
+Boolean houseLoaded = false;
+Boolean swipeHouseOutline = false;
+Boolean houseOutlineLoaded = true;
+Boolean roofLoaded = false;
+Boolean swipeRoofOutline = false;
+Boolean roofOutlineLoaded = true;
+Boolean windowRightLoaded = false;
+Boolean windowLeftLoaded = false;
+Boolean swipeWindowRightOutline = false;
+Boolean windowRightOutlineLoaded = true;
+Boolean swipeWindowLeftOutline = false;
+Boolean windowLeftOutlineLoaded = true;
 Boolean greenBeeLoaded = true;
 Boolean purpleBeeLoaded = true;
 Boolean redBeeLoaded = true;
@@ -89,9 +120,8 @@ Boolean circleBeeGreen = false;
 Boolean circleBeePurple = false;
 Boolean circleBeeRed = false;
 
-float bgSpeed = 130; // Background speed: Ex. 1000 is very slow and 1 is very fast, 130 seems good
+float bgSpeed = 110; // Background speed: Ex. 1000 is very slow and 1 is very fast, 110 seems good on this level
 float playerMoveSpeed = 50; // Player speed according to Leap Position X: Ex. 100 is smooth, slow and 1 is fastest, 50 seems good
-
 float archiePosY = 80;
 float archiePosX = 80;
 float rainbowCatPosY = 100;
@@ -110,21 +140,12 @@ int swipeCrateTimer = 0;
 int swipeLargeRockOutlineTimer = 0;
 int swipeLargeRockTimer = 0;
 int swipeDeadTreeTimer = 0;
+int swipeDoorOutlineTimer = 0;
+int swipeHouseOutlineTimer = 0;
+int swipeRoofOutlineTimer = 0;
+int swipeWindowRightOutlineTimer = 0;
+int swipeWindowLeftOutlineTimer = 0;
 int endLevelTimer = 0;
-
-float bgWidth = 7001 - 1080;
-
-Boolean gestureTest = false;
-Boolean counting = true;
-
-ResourceLoader resourceLoader;
-Animation archieFlying;
-Animation playerAnimWalk;
-Animation playerAnimIdle;
-Animation playerAnimAttack;
-Animation inkbeeGreen;
-Animation inkbeePurple;
-Animation inkbeeRed;
 
 ArrayList<PVector> getInterpolatedPoints(PVector pt1, PVector pt2, float spacing) {
   PVector drawLine = PVector.sub(pt2,pt1);
@@ -159,8 +180,9 @@ void setup() {
   
   // Playing audio files
   minim = new Minim(this);
-  player = minim.loadFile("Level2.mp3");
+  player = minim.loadFile("Thatched Villagers.mp3");
   player.play();
+  player2 = minim.loadFile("Sneaky Snitch.mp3");
   
   /*
 PImage door;
@@ -197,16 +219,30 @@ PImage windowoutline; */
   waterfountain = resourceLoader.getImage("Waterfountain_1.png");
   waterfountain2 = resourceLoader.getImage("Waterfountain_2.png");
   
+  door = resourceLoader.getImage("Door_2.png");
+  dooroutline = resourceLoader.getImage("DoorOutline_2.png");
+  house = resourceLoader.getImage("House_2.png");
+  houseoutline = resourceLoader.getImage("HouseOutline_2.png");
+  roof = resourceLoader.getImage("Roof_2.png");
+  roofoutline = resourceLoader.getImage("RoofOutline_2.png");
+  windowright = resourceLoader.getImage("WindowRight_2.png");
+  windowleft = resourceLoader.getImage("WindowLeft_2.png");
+  windowrightoutline = resourceLoader.getImage("WindowRightOutline_2.png");
+  windowleftoutline = resourceLoader.getImage("WindowLeftOutline_2.png");
+
   archieFlying = new Animation("Animation/Archieframe", 7);
   playerAnimWalk = new Animation("Animation/CATWalking", 7);
   playerAnimIdle = new Animation("Animation/CATIdle", 7);
   playerAnimAttack = new Animation("Animation/CATattacking", 7);
   inkbeeGreen = new Animation("Animation/InkbeeGreen", 11);
+  inkbeeGreenBubble = new Animation("Animation/InkbeeGreenBubble", 11);
   inkbeePurple = new Animation("Animation/InkbeePurple", 11);
+  inkbeePurpleBubble = new Animation("Animation/InkbeePurpleBubble", 11);
   inkbeeRed = new Animation("Animation/InkbeeRed", 11);
+  inkbeeRedBubble = new Animation("Animation/InkbeeRedBubble", 11);
   
-  buffer = createGraphics(2000, 2000);
   ypos = height * 0.35;
+  x = 200;
   
 }
 
@@ -300,19 +336,58 @@ void draw() {
   if (x > 2780 - 1500 && x < 2780 && largeRock3Loaded) {
     image( largerock3.get(int(x), 0 , largerock3.width-int(x), largerock3.height), 0, 0);
   }
+  // House Outline Instantiated
+  if (x > 6500 - 1500 && x < 6500 && houseOutlineLoaded) {
+    image( houseoutline.get(int(x), 0 , houseoutline.width-int(x), houseoutline.height), 0, 0);
+  }
+  // House Instantiated
+  if (x > 6500 - 1500 && x < 6500 && houseLoaded) {
+    image( house.get(int(x), 0 , house.width-int(x), house.height), 0, 0);
+  }
+  // Door Outline Instantiated
+  if (x > 6330 - 1500 && x < 6330 && doorOutlineLoaded) {
+    image( dooroutline.get(int(x), 0 , dooroutline.width-int(x), dooroutline.height), 0, 0);
+  }
+  // Door Instantiated
+  if (x > 6330 - 1500 && x < 6330 && doorLoaded) {
+    image( door.get(int(x), 0 , door.width-int(x), door.height), 0, 0);
+  }
+  // Roof Outline Instantiated
+  if (x > 6700 - 1500 && x < 6700 && roofOutlineLoaded) {
+    image( roofoutline.get(int(x), 0 , roofoutline.width-int(x), roofoutline.height), 0, 0);
+  }
+  // Roof Instantiated
+  if (x > 6700 - 1500 && x < 6700 && roofLoaded) {
+    image( roof.get(int(x), 0 , roof.width-int(x), roof.height), 0, 0);
+  }
+  // Window Right Outline Instantiated
+  if (x > 6615 - 1500 && x < 6615 && windowRightOutlineLoaded) {
+    image( windowrightoutline.get(int(x), 0 , windowrightoutline.width-int(x), windowrightoutline.height), 0, 0);
+  }
+  // Window Right Instantiated
+  if (x > 6615 - 1500 && x < 6615 && windowRightLoaded) {
+    image( windowright.get(int(x), 0 , windowright.width-int(x), windowright.height), 0, 0);
+  }
+  // Window Left Outline Instantiated
+  if (x > 6050 - 1500 && x < 6050 && windowLeftOutlineLoaded) {
+    image( windowleftoutline.get(int(x), 0 , windowleftoutline.width-int(x), windowleftoutline.height), 0, 0);
+  }
+  // Window Left Instantiated
+  if (x > 6050 - 1500 && x < 6050 && windowLeftLoaded) {
+    image( windowleft.get(int(x), 0 , windowleft.width-int(x), windowleft.height), 0, 0);
+  }
   
 
   // ******************** LEVEL 2 ANIMATION ********************
   
-  //float dx = mouseX - xpos; // Testing with the mouse
   float dx = lastFingerPos.x - xpos; // Distance from cursor, Leap Motion control
-  int passedTime = millis() - savedTime;
+  int passedTime = millis() - savedTime; // Save the time that has passed in a variable
   
   if (timer < 30) {
-    archieFlying.display(xpos-archieFlying.getWidth()/2, ypos + 80);
+    archieFlying.display(xpos-archieFlying.getWidth()/2, ypos + 80); // Display archie above xposition of character
   }
   if (timer >= 30) {
-    archieFlying.display(archieFlying.getWidth()/2 + archiePosX + 300, archiePosY + 200);
+    archieFlying.display(archieFlying.getWidth()/2 + archiePosX + 300, archiePosY + 200); // Display archie flying
   }
   if (dx > 40 || dx < -40) {
     if (passedTime > 4000) {
@@ -324,9 +399,10 @@ void draw() {
     }
     playerAnimWalk.display(xpos-playerAnimWalk.getWidth()/2, ypos + rainbowCatPosY);
   } else {
-    playerAnimWalk.display(xpos-playerAnimWalk.getWidth()/2, ypos + rainbowCatPosY);
+    playerAnimIdle.display(xpos-playerAnimIdle.getWidth()/2, ypos + rainbowCatPosY);
   }
   xpos = xpos + dx/playerMoveSpeed; // Moves player to cursor position
+  
   
   
 
@@ -343,13 +419,19 @@ void draw() {
   
   // User must strike the bridge outline to continue the level
   if (bridgeOutlineLoaded) {
-    if (xpos < 700) {
-     // xpos = xpos + dx/playerMoveSpeed;
+    if (xpos < 500) {
+      xpos = xpos + dx/playerMoveSpeed;
     } else {
-      //xpos = 700;
+      xpos = 500;
     }
   } else {
     x += xpos / bgSpeed; 
+  }
+  // Slowing the game down to swipe house components
+  if (x > 4800) {
+    bgSpeed = 250;
+    player.close();
+    player2.play();
   }
   
   
@@ -408,7 +490,7 @@ void draw() {
   // Swipe Boulder Text Event, encourage thy player!
   if (!boulderSmashableLoaded && timer < swipeBoulderTimer + textDuration) {
     textSize(normalTextSize);
-    text("Wow! Look beneath the boulder! +50 Points", width/middleScreenPosX - 0.5, height/middleScreenPosY);
+    text("Wow! Look beneath the rocks! +50 Points", width/middleScreenPosX - 0.5, height/middleScreenPosY);
   }
   // Swipe Crate Text Event, encourage thy player!
   if (!crateLoaded && timer < swipeCrateTimer + textDuration) {
@@ -429,6 +511,11 @@ void draw() {
   if (deadTreeRainbowFishLoaded && timer < swipeDeadTreeTimer + textDuration) {
     textSize(normalTextSize);
     text("Look at all of them! +50 Points", width/middleScreenPosX - 0.5, height/middleScreenPosY);
+  }
+  // Swipe Roof Outline Text Event, encourage thy player!
+  if (roofLoaded && timer < swipeRoofOutlineTimer + textDuration) {
+    textSize(normalTextSize);
+    text("Painted a house!", width/middleScreenPosX - 0.5, height/middleScreenPosY);
   }
   
 
@@ -500,6 +587,51 @@ void draw() {
     timer = swipeDeadTreeTimer;
     swipeDeadTreeTimer = (millis()/1000) - swipeDeadTreeTimer;
   }
+  // Swiping the Door Outline
+  if (swipeDoorOutline) {
+    scoreCount += 10;
+    swipeDoorOutline = false;
+    doorOutlineLoaded = false;
+    doorLoaded = true;
+    timer = swipeDoorOutlineTimer;
+    swipeDoorOutlineTimer = (millis()/1000) - swipeDoorOutlineTimer;
+  }
+  // Swiping the House Outline
+  if (swipeHouseOutline) {
+    scoreCount += 10;
+    swipeHouseOutline = false;
+    houseOutlineLoaded = false;
+    houseLoaded = true;
+    timer = swipeHouseOutlineTimer;
+    swipeHouseOutlineTimer = (millis()/1000) - swipeHouseOutlineTimer;
+  }
+  // Swiping the Roof Outline
+  if (swipeRoofOutline) {
+    scoreCount += 10;
+    swipeRoofOutline = false;
+    roofOutlineLoaded = false;
+    roofLoaded = true;
+    timer = swipeRoofOutlineTimer;
+    swipeRoofOutlineTimer = (millis()/1000) - swipeRoofOutlineTimer;
+  }
+  // Swiping the Window Right Outline
+  if (swipeWindowRightOutline) {
+    scoreCount += 10;
+    swipeWindowRightOutline = false;
+    windowRightOutlineLoaded = false;
+    windowRightLoaded = true;
+    timer = swipeWindowRightOutlineTimer;
+    swipeWindowRightOutlineTimer = (millis()/1000) - swipeWindowRightOutlineTimer;
+  }
+  // Swiping the Window Left Outline
+  if (swipeWindowLeftOutline) {
+    scoreCount += 10;
+    swipeWindowLeftOutline = false;
+    windowLeftOutlineLoaded = false;
+    windowLeftLoaded = true;
+    timer = swipeWindowLeftOutlineTimer;
+    swipeWindowLeftOutlineTimer = (millis()/1000) - swipeWindowLeftOutlineTimer;
+  }
   // Circling the Green Bee
   if (circleBeeGreen) {
     scoreCount += 10;
@@ -527,6 +659,7 @@ void draw() {
     playerMoveSpeed = 10000; // temp
     timer = endLevelTimer;
     endLevelTimer = (millis()/1000) - endLevelTimer;
+    player2.close();
   }
   // Score Counter
   textSize(32);
@@ -587,7 +720,7 @@ public void swipeGestureRecognized(SwipeGesture gesture) {
  // ********** LEVEL 2 GESTURES **********
  
  // Bridge Outline Swipe
- if (lastFingerPos.x > fingerRightPos && lastFingerPos.y > 465 && lastFingerPos.y < 650 && bridgeOutlineLoaded) {
+ if (lastFingerPos.x < fingerRightPos && lastFingerPos.y > 465 && lastFingerPos.y < 650 && bridgeOutlineLoaded) {
    swipeBridgeOutline = true;
  }
  // Hedge Swipe
@@ -613,6 +746,26 @@ public void swipeGestureRecognized(SwipeGesture gesture) {
  // Dead Tree Swipe
  if (x > 4100 - 1080 && x < 4100 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 150 && lastFingerPos.y < 400 && !deadTreeRainbowFishLoaded) {
    swipeDeadTree = true;
+ }
+ // Door Outline Swipe
+ if (x > 6330 - 1080 && x < 6330 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 310 && lastFingerPos.y < 670 && doorOutlineLoaded) {
+   swipeDoorOutline = true;
+ }
+ // House Outline Swipe
+ if (x > 6500 - 1080 && x < 6500 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 155 && lastFingerPos.y < 580 && houseOutlineLoaded) {
+   swipeHouseOutline = true;
+ }
+ // Roof Outline Swipe
+ if (x > 6700 - 1080 && x < 6700 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 40 && lastFingerPos.y < 285 && roofOutlineLoaded) {
+   swipeRoofOutline = true;
+ }
+ // Window Right Outline Swipe
+ if (x > 6610 - 1080 && x < 6610 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 285 && lastFingerPos.y < 460 && windowRightOutlineLoaded) {
+   swipeWindowRightOutline = true;
+ }
+ // Window Left Outline Swipe
+ if (x > 6050 - 1080 && x < 6050 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 285 && lastFingerPos.y < 460 && windowLeftOutlineLoaded) {
+   swipeWindowLeftOutline = true;
  }
  
 }
