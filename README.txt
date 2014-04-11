@@ -1,7 +1,7 @@
 IMD3901 Design Studio 3
 Team: JRAA Studios 
 Members: Andrew Wardell, Alex Tarapacky, Rebecca Riesberry, Jessica Fox
-Date: April 5, 2014
+Date: April 10, 2014
 
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -11,9 +11,7 @@ Changes:
 
 * Main Menu is being developed to integrate all of the modes (Art mode, Adventure Mode, Tutorial, Credits) for Artventure
 
-* Developing Level Two currently. Dingo Deleto is being added at the end. House components are working. Starting Development of Level Three soon.
-
-* Level 3 design is almost complete. Boss Battle being worked on.
+* Developing Level Three currently. Polishing for other levels and integrating them.
 
 
 

@@ -1,0 +1,7 @@
+Level 4 Interactable Objects:
+
+Mandatory:
+Greyscale Greyhound: Slash at him with paint brush ? times to defeat him, earn points
+
+Optional:
+Cracked Rock: Erase to find fish

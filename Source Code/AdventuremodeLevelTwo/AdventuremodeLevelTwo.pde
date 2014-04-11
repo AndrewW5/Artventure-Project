@@ -353,11 +353,11 @@ void draw() {
     image( door.get(int(x), 0 , door.width-int(x), door.height), 0, 0);
   }
   // Roof Outline Instantiated
-  if (x > 6700 - 1500 && x < 6700 && roofOutlineLoaded) {
+  if (x > 6500 - 1500 && x < 6500 && roofOutlineLoaded) {
     image( roofoutline.get(int(x), 0 , roofoutline.width-int(x), roofoutline.height), 0, 0);
   }
   // Roof Instantiated
-  if (x > 6700 - 1500 && x < 6700 && roofLoaded) {
+  if (x > 6500 - 1500 && x < 6500 && roofLoaded) {
     image( roof.get(int(x), 0 , roof.width-int(x), roof.height), 0, 0);
   }
   // Window Right Outline Instantiated
@@ -756,7 +756,7 @@ public void swipeGestureRecognized(SwipeGesture gesture) {
    swipeHouseOutline = true;
  }
  // Roof Outline Swipe
- if (x > 6700 - 1080 && x < 6700 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 40 && lastFingerPos.y < 285 && roofOutlineLoaded) {
+ if (x > 6500 - 1080 && x < 6500 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 40 && lastFingerPos.y < 285 && roofOutlineLoaded) {
    swipeRoofOutline = true;
  }
  // Window Right Outline Swipe
