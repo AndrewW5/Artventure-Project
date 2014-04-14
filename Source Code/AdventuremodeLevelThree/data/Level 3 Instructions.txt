@@ -1,0 +1,13 @@
+Level 3 Interactable Objects:
+
+Mandatory:
+Ceiling Rocks(1 & 2): Fall from the ceiling, player must erase them to continue
+Hole: Hole appears when Cat walks over it, falls in
+Boxes: Must draw boxes to create a way out of the hole
+Dingo & Box: Draw box over Dingo's head to knock him out
+
+Optional:
+Crystals: Slash with paintbrush to find fish
+Cracked Rock: Erase to find fish
+Weird Rock: Erase to find fish
+Fish: There's a fish in the background, touch it to get it

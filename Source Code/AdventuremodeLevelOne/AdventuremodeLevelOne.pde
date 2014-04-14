@@ -38,7 +38,7 @@ float bgWidth = 7001 - 1080;
 
 PFont font;
 
-PImage toolsmenu;
+PImage archietextbox;
 PImage cursor;
 PImage bg;
 PImage fg;
@@ -59,6 +59,10 @@ PImage smallrock;
 PImage smallrockrainbowfish;
 PImage log;
 PImage treetrunk;
+
+// TEXT BOXES - Archie
+// *********************************************************************
+Boolean textBoxArchieLoaded = false;
 
 Boolean swipeCrate = false;
 Boolean crateLoaded = true;
@@ -91,7 +95,7 @@ Boolean purpleBeeLoaded = true;
 Boolean circleBeeRed = false;
 Boolean redBeeLoaded = true;
 
-float bgSpeed = 120; // Background speed: Ex. 1000 is very slow and 1 is very fast, 120 seems good
+float bgSpeed = 100; // Background speed: Ex. 1000 is very slow and 1 is very fast, 120 seems good
 float playerMoveSpeed = 50; // Player speed according to Leap Position X: Ex. 100 is smooth, slow and 1 is fastest, 50 seems good
 float archiePosY = 80;
 float archiePosX = 80;
@@ -153,7 +157,7 @@ void setup() {
   
   // Loading Resource Assets
   resourceLoader = new ResourceLoader();
-  toolsmenu = resourceLoader.getImage("ToolsMenu.png");
+  archietextbox = resourceLoader.getImage("Textbox-Archie.png");
   cursor = resourceLoader.getImage("cursor.png");
   bg = resourceLoader.getImage("Background_2.png");
   fg = resourceLoader.getImage("Foreground_2.png");
@@ -303,6 +307,7 @@ void draw() {
 
   // ******************** LEVEL 1 ADVANCE ********************
   
+  int smallerTextSize = 25;
   int smallTextSize = 30;
   int normalTextSize = 35;
   int largeTextSize = 48;
@@ -349,10 +354,8 @@ void draw() {
     x += xpos / bgSpeed;
   }
   
-  
-  
   // ******************** LEVEL 1 ASSETS INSTANTIATED ********************
-  
+   
   // Crate Instantiated
   if (x < 1000 && crateLoaded) {
     image( crate.get(int(x), 0, crate.width-int(x), crate.height), 0, 0);
@@ -373,12 +376,61 @@ void draw() {
   if (x > 5000 - 1500 && x < 5000 && logLoaded) {
     image( log.get(int(x), 0, log.width-int(x), log.height), 0, 0);
   }
-  
-  // Tools Menu Instantiated
-  image( toolsmenu, 15, 15);
-  
+    
   // Cursor Instantiated
   image(cursor, lastFingerPos.x, lastFingerPos.y, 50, 50);
+  
+  
+  
+  // TEXT BOXES - Archie
+  // *********************************************************************
+  int firstTextStart = -100;
+  int firstTextEnd = 100;
+  int secondTextStart = 100;
+  int secondTextEnd = 600;
+  int thirdTextStart = 600;
+  int thirdTextEnd = 900;
+  int fourthTextStart = 5700;
+  int fourthTextEnd = 6000;
+  int fifthTextStart = 6000;
+  int fifthTextEnd = 7001;
+  
+  if (textBoxArchieLoaded) {
+    image( archietextbox, 0, 0);
+  }
+  if (x > firstTextStart && x < firstTextEnd) {
+    textBoxArchieLoaded = true;
+    textSize(smallerTextSize);
+    text("Hmph, I thought cats were supposed to be quick.\nI've been waiting here for an eternity.", 
+    width/5, height/1.15);
+  }
+  if (x > secondTextStart && x < secondTextEnd) {
+    textBoxArchieLoaded = true;
+    textSize(smallerTextSize - 5);
+    text("Oh, where are my manners. My name is Archibald Reginald Thurstan 3rd!\nMy friends call me ART, but you, my saucy minion, can call me Archie.\nWe have a lot of work to do. The Grayscale Greyhound is terrorizing this land\nin a fit of jealous rage because he's as dull as a used up pencil.", 
+    width/5, height/1.25);
+  } 
+  if (x > thirdTextStart && x < thirdTextEnd) {
+    textBoxArchieLoaded = true;
+    textSize(smallerTextSize);
+    text("Looks like you need a lesson in art supplies.", 
+    width/4, height/1.15);
+  }
+  if (x > fourthTextStart && x < fourthTextEnd) {
+    textBoxArchieLoaded = true;
+    textSize(smallerTextSize);
+    text("Quick! The Inkbees are trying to destory the bridge,\ndraw circles around them or swipe at them to defeat them!", 
+    width/4, height/1.15);
+  }
+  if (x > fifthTextStart && x < fifthTextEnd) {
+    textBoxArchieLoaded = true;
+    textSize(smallerTextSize);
+    text("I think that's the last of them. Let's get moving.", 
+    width/4, height/1.15);
+  }
+  
+  
+  
   
   
   
@@ -395,7 +447,7 @@ void draw() {
     text("YOU ARE RAINBOW CAT", width/middleScreenPosX, height/topScreenPosY);
   }
   // Strike things
-  if (x > 300 && x < 600 && timer > 15) {
+  if (x > 700 && x < 1500 && timer > 15) {
     textSize(smallTextSize);
     text("Strike things to gain points!\nYou might even find Rainbow Fish!", width/middleScreenPosX, height/topScreenPosY);
   }
@@ -582,7 +634,7 @@ void draw() {
   }
   // Score Counter
   textSize(32);
-  text("Score: " + scoreCount, 45, height - 45);
+  text("Score: " + scoreCount, 45, height - 30);
   
   // ******************** TESTING ********************
   
@@ -603,13 +655,6 @@ void draw() {
     PVector fingerPos = leap.getTip(fingerList.get(0));
     ArrayList<PVector> points = getInterpolatedPoints(lastFingerPos, fingerPos, 2);
     lastFingerPos = fingerPos;
-  }  
-  // Still wondering about the implementation for these buttons
-  if(lastFingerPos.x > 38 && lastFingerPos.x < 90 && lastFingerPos.y > 80 && lastFingerPos.y < 130) {
-    println("Drawing Tool Chosen");
-  }
-  if(lastFingerPos.x > 120 && lastFingerPos.x < 175 && lastFingerPos.y > 80 && lastFingerPos.y < 130) {
-    println("Eraser Chosen");
   }
 }
 

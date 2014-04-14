@@ -40,7 +40,7 @@ float bgWidth = 7001 - 1080;
 
 PFont font;
 
-PImage toolsmenu;
+PImage archietextbox;
 PImage cursor;
 PImage bg;
 PImage fg;
@@ -73,6 +73,8 @@ PImage windowright;
 PImage windowleft;
 PImage windowrightoutline;
 PImage windowleftoutline;
+
+Boolean textBoxArchieLoaded = false;
 
 Boolean swipeBridgeOutline = false;
 Boolean bridgeOutlineLoaded = true;
@@ -181,7 +183,7 @@ void setup() {
   // Playing audio files
   minim = new Minim(this);
   player = minim.loadFile("Thatched Villagers.mp3");
-  player.play();
+  //player.play();
   player2 = minim.loadFile("Sneaky Snitch.mp3");
   
   /*
@@ -196,7 +198,7 @@ PImage windowoutline; */
   
   // Loading Resource Assets
   resourceLoader = new ResourceLoader();
-  toolsmenu = resourceLoader.getImage("ToolsMenu.png");
+  archietextbox = resourceLoader.getImage("Textbox-Archie.png");
   cursor = resourceLoader.getImage("cursor.png");
   bg = resourceLoader.getImage("Background_2.png");
   fg = resourceLoader.getImage("Foreground_2.png");
@@ -242,7 +244,6 @@ PImage windowoutline; */
   inkbeeRedBubble = new Animation("Animation/InkbeeRedBubble", 11);
   
   ypos = height * 0.35;
-  x = 200;
   
 }
 
@@ -353,11 +354,11 @@ void draw() {
     image( door.get(int(x), 0 , door.width-int(x), door.height), 0, 0);
   }
   // Roof Outline Instantiated
-  if (x > 6500 - 1500 && x < 6500 && roofOutlineLoaded) {
+  if (x > 6700 - 1500 && x < 6700 && roofOutlineLoaded) {
     image( roofoutline.get(int(x), 0 , roofoutline.width-int(x), roofoutline.height), 0, 0);
   }
   // Roof Instantiated
-  if (x > 6500 - 1500 && x < 6500 && roofLoaded) {
+  if (x > 6700 - 1500 && x < 6700 && roofLoaded) {
     image( roof.get(int(x), 0 , roof.width-int(x), roof.height), 0, 0);
   }
   // Window Right Outline Instantiated
@@ -408,6 +409,7 @@ void draw() {
 
   // ******************** LEVEL 2 ADVANCE ********************
   
+  int smallerTextSize = 25;
   int smallTextSize = 30;
   int normalTextSize = 35;
   int largeTextSize = 48;
@@ -442,11 +444,48 @@ void draw() {
     image( fg.get(int(x), 0 , fg.width-int(x), fg.height), 0, 0);
   }
   
-  // Tools Menu Instantiated
-  image( toolsmenu, 15, 15);
   
   // Cursor Instantiated
   image(cursor, lastFingerPos.x, lastFingerPos.y, 50, 50);
+  
+  // TEXT BOXES - Archie
+  // *********************************************************************
+  int firstTextStart = 0;
+  int firstTextEnd = 500;
+  int secondTextStart = 0;
+  int secondTextEnd = 500;
+  int thirdTextStart = 5000;
+  int thirdTextEnd = 5500;
+  int fourthTextStart = 5500;
+  int fourthTextEnd = 7001;
+  
+  if (textBoxArchieLoaded) {
+    image( archietextbox, 0, 0);
+  }
+  if (x > firstTextStart && x < firstTextEnd && xpos < 100) {
+    textBoxArchieLoaded = true;
+    textSize(smallerTextSize - 3);
+    text("Wow, you didn't die. Congratulations, I guess cats really do always land on their\nfeet. Well, let's get a move on then, and keep an eye out, there are sure to be more\nenemies along this path who want to keep us from the Grayscale Greyhound.", 
+    width/5, height/1.2);
+  }
+  if (x > secondTextStart && x < secondTextEnd && xpos > 100) {
+    textBoxArchieLoaded = true;
+    textSize(smallerTextSize - 3);
+    text("Oh fiddlesticks, the bridge is out. Fear not my hydrophobic companion, see those\ndotted lines? You can use your paintbrush to trace those lines and create a new object in the world.\nGo ahead and give it a try. Quickly now, we have precious little time to waste.", 
+    width/5, height/1.2);
+  } 
+  if (x > thirdTextStart && x < thirdTextEnd) {
+    textBoxArchieLoaded = true;
+    textSize(smallerTextSize);
+    text("Look, its Dingo Deleto. That dastardly devil is deleting everyone's houses.\nPerhaps you should help fix the damage he's done and chase after him.", 
+    width/5, height/1.2);
+  }
+  if (x > fourthTextStart && x < fourthTextEnd) {
+    textBoxArchieLoaded = true;
+    textSize(smallerTextSize);
+    text("Make haste you paint-speckled peon, we can't let him get away!", 
+    width/5, height/1.2);
+  }
   
 
 
@@ -756,7 +795,7 @@ public void swipeGestureRecognized(SwipeGesture gesture) {
    swipeHouseOutline = true;
  }
  // Roof Outline Swipe
- if (x > 6500 - 1080 && x < 6500 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 40 && lastFingerPos.y < 285 && roofOutlineLoaded) {
+ if (x > 6700 - 1080 && x < 6700 && lastFingerPos.x > fingerLeftPos && lastFingerPos.x < fingerRightPos && lastFingerPos.y > 40 && lastFingerPos.y < 285 && roofOutlineLoaded) {
    swipeRoofOutline = true;
  }
  // Window Right Outline Swipe
