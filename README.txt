@@ -5,10 +5,6 @@ Date: April 14, 2014
 
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
-Changes:
-
-* Finishing up last minute preparations for Presentation
-
 
 
 
